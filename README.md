@@ -17,3 +17,7 @@ ToDos:
 - correct and integrate diff tool
 - add merging feature
 - improve and add more unittests
+
+A design document was made for this project located at /docs.
+
+Project mentored by: [Kaustabh Karkare](https://github.com/kaustubh-karkare)

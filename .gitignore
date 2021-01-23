@@ -1,0 +1,5 @@
+# Byte-compiled
+__pycache__/
+
+# vs-code config files
+.vscode/

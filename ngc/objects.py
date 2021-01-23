@@ -71,7 +71,7 @@ class Blob(NgcObject):
 
         # write compressed data to the blob file with the specified format
         with open(file_path, 'rb') as f_in:
-            with gzip.open(blob_path, "wb") as f_out:
+            with gzip.open(blob_path, "wb") as f_out: # TODO: reverse file handler's name
                 f_out.write(header)
                 shutil.copyfileobj(f_in, f_out, self.BUF_SIZE)
 
@@ -87,6 +87,8 @@ class Blob(NgcObject):
         with gzip.open(file_path, "rb") as blob_obj:
             while b"\x00" not in temp:
                 temp = blob_obj.read(1)
+                if not temp:
+                    break
                 header += temp
 
         return header.decode()
@@ -99,6 +101,8 @@ class Blob(NgcObject):
         with gzip.open(file_path, "rb") as f_in:
             while b"\x00" not in header:
                 temp = f_in.read(1)
+                if not temp:
+                    break
                 header += temp
             content = f_in.read()
 
@@ -131,7 +135,6 @@ class Blob(NgcObject):
             while True:
 
                 data = f_in.read(self.BUF_SIZE)
-
                 if not data:
                     break
                 hashf.update(data)

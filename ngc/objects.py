@@ -158,8 +158,8 @@ class Tree(NgcObject):
     def __init__(self, path=None):
         if not path: path = os.getcwd()
         self.path = path
-        self.obj_path = os.path.join(self.path, '.ngc/objects')
-        if not os.path.exists(self.obj_path): os.makedirs(self.obj_path)
+        self.objects_path = os.path.join(self.path, '.ngc/objects')
+        if not os.path.exists(self.objects_path): os.makedirs(self.objects_path)
         self.root = None
         self.blob = Blob()
 
@@ -185,8 +185,8 @@ class Tree(NgcObject):
                 file_hash = self.blob.get_file_hash(item_path)
 
                 # if item not already creates as blob, create it
-                if not os.path.exists(os.path.join(self.obj_path, file_hash)):
-                    file_hash = self.blob.create(item_path, self.obj_path)
+                if not os.path.exists(os.path.join(self.objects_path, file_hash)):
+                    file_hash = self.blob.create(item_path, self.objects_path)
                     logging.debug("blob created for: %s" % (item))
 
                 files[item] = file_hash
@@ -213,7 +213,7 @@ class Tree(NgcObject):
         hashf = hashlib.new(self.HASHING_FUNCTION)
         hashf.update(tree_json_bytes)
         hashed_value = hashf.hexdigest()
-        tree_obj_path = os.path.join(self.obj_path, hashed_value)
+        tree_obj_path = os.path.join(self.objects_path, hashed_value)
 
         with open(tree_obj_path, 'wb') as tree_file:
             tree_file.write(tree_json_bytes)
@@ -222,7 +222,7 @@ class Tree(NgcObject):
 
     def get_tree_dict(self, tree_hash):
         """ Get tree details from file as dict. """
-        tree_file_path = os.path.join(self.obj_path, tree_hash)
+        tree_file_path = os.path.join(self.objects_path, tree_hash)
         if not os.path.exists(tree_file_path):
             logging.warning("Tree file doesn't exist.")
             return
@@ -250,7 +250,7 @@ class Commit(NgcObject):
     def __init__(self, path=None):
         if not path: path = os.getcwd()
         self.path = path
-        self.obj_path = os.path.join(path, ".ngc/objects")
+        self.objects_path = os.path.join(path, ".ngc/objects")
         self.commit_dict = None
 
     def create(self, tree_hash, author_details, committer_details, message,
@@ -295,7 +295,7 @@ class Commit(NgcObject):
         hashf = hashlib.new(self.HASHING_FUNCTION)
         hashf.update(commit_json_bytes)
         hashed_value = hashf.hexdigest()
-        commit_obj_path = os.path.join(self.obj_path, hashed_value)
+        commit_obj_path = os.path.join(self.objects_path, hashed_value)
 
         with open(commit_obj_path, 'wb') as tree_file:
             tree_file.write(commit_json_bytes)
@@ -304,7 +304,7 @@ class Commit(NgcObject):
 
     def print_commit_file(self, commit_hash):
         """ Print commit details from a commit file. """
-        commit_path = os.path.join(self.obj_path, commit_hash)
+        commit_path = os.path.join(self.objects_path, commit_hash)
         if not os.path.exists(commit_path):
             logging.warning("Commit file doesn't exist.")
             return 
@@ -334,7 +334,7 @@ class Commit(NgcObject):
         
     def get_commit_dict_from_file(self, commit_hash):
         """ Get the commit details from a commit file. """
-        commit_path = os.path.join(self.obj_path, commit_hash)
+        commit_path = os.path.join(self.objects_path, commit_hash)
         commit_json = None
 
         with open(commit_path, 'rb') as commit_file:
@@ -344,7 +344,7 @@ class Commit(NgcObject):
 
     def get_tree_hash(self, commit_hash):
         #TODO: why does this function exist?
-        commit_path = os.path.join(self.obj_path, commit_hash)
+        commit_path = os.path.join(self.objects_path, commit_hash)
 
         with open(commit_path, 'rb') as commit_file:
             commit_json = json.load(commit_file)

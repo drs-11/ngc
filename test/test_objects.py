@@ -1,5 +1,4 @@
 import gzip
-import logging
 import os
 import tempfile
 import unittest
@@ -76,3 +75,42 @@ class BlobTest(unittest.TestCase):
                     self.assertEqual(gzip.decompress(actual_compressed), gzip.decompress(expected_compressed))
                     self.assertEqual(actual_hash, expected_hash)
                     blob_file.close()
+
+
+class TreeTest(unittest.TestCase):
+
+    def setUp(self):
+        self.subdir_to_hash = {'.':'d25c3e80086290de5fb0c5ebc6c81ef0685870c3',
+                       'subdir1':'d2b945ace691fe8522e868ebde016d0a53ac40ca',
+                       'subdir2':'35d9d594f1d830505fb3132d8959e73119755114',
+                       'subdir2/subdir3':'17aeddcc4d19a24eedc6024163cdb9b0fceb5faa'
+                    }
+        self.hash_to_data = {
+            'd25c3e80086290de5fb0c5ebc6c81ef0685870c3': b'{"files": {"file1": "b75caba50711332063088fc53744f1c55b4445fe"}, '
+            b'"subdirs": {"subdir1": "d2b945ace691fe8522e868ebde016d0a53ac40ca", "subdir2": "35d9d594f1d830505fb3132d8959e73119755114"}}',
+            'd2b945ace691fe8522e868ebde016d0a53ac40ca': b'{"files": {"file2": "bfc385898eb83d5f15e84635a1ab1649cced4fcb"}, "subdirs": {}}',
+            '35d9d594f1d830505fb3132d8959e73119755114': b'{"files": {"file3": "41cd77870f7d97e5b5a32b87a12343312ffbc065"}, "subdirs": '
+            b'{"subdir3": "17aeddcc4d19a24eedc6024163cdb9b0fceb5faa"}}',
+            '17aeddcc4d19a24eedc6024163cdb9b0fceb5faa': b'{"files": {"file4": "f0ef9dfd4b499f54cdcc15d0fc95204d92207790"}, "subdirs": {}}',
+
+        }
+        self.test_dir = tempfile.TemporaryDirectory()
+        copy_tree('./test/test_dir/', self.test_dir.name)
+        self.tree = objects.Tree(self.test_dir.name)
+        self.tree.create()
+
+    def tearDown(self):
+        del self.test_dir
+
+    def test_create(self):
+        for _, hash_val in self.subdir_to_hash.items():
+            subtree_path = os.path.join(self.tree.objects_path, hash_val)
+            self.assertTrue(os.path.exists(subtree_path))
+
+    def test_get_tree(self):
+        for hash_val, expected_data in self.hash_to_data.items():
+            tree_path = os.path.join(self.tree.objects_path, hash_val)
+            tree_blob = open(tree_path, 'rb')
+            actual_data = tree_blob.read()
+            self.assertEqual(actual_data, expected_data)
+            tree_blob.close()

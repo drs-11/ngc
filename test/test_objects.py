@@ -2,7 +2,9 @@ import gzip
 import os
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from distutils.dir_util import copy_tree
+from io import StringIO
 
 from ngc import objects
 
@@ -114,3 +116,51 @@ class TreeTest(unittest.TestCase):
             actual_data = tree_blob.read()
             self.assertEqual(actual_data, expected_data)
             tree_blob.close()
+
+
+class CommitTest(unittest.TestCase):
+
+    def setUp(self):
+        self.hash_to_data = {
+            "d39ba336325dee3bb33960096da64efde982b5b0": ['a', 'b', 'c', 'd', 'e'],
+            "ef252ac3d439bef8b5e46ed9870e4de67e5fb083": ['TREEa', 'AUTHORa', 'COMMITTERb', 'MSGa', 'PARa'],
+            "f30d7a1c5e5a8a9b5179f36a4c58613fca4016f0": ['TREEb', 'AUTHORb', 'COMMITTERc', 'MSGb', 'PARb'],
+        }
+
+    def test_create(self):
+        test_dir = tempfile.TemporaryDirectory()
+        commit = objects.Commit(test_dir.name)
+
+        for expected_hash, data in self.hash_to_data.items():
+            actual_hash = commit.create(*data)
+            self.assertEqual(expected_hash, actual_hash)
+
+        del test_dir
+
+    def test_print(self):
+        test_dir = tempfile.TemporaryDirectory()
+        commit = objects.Commit(test_dir.name)
+
+        hash_to_output = {
+            'd39ba336325dee3bb33960096da64efde982b5b0': 'tree a\nparent e\nauthor b\ncommitter c\n\nd\n',
+            'ef252ac3d439bef8b5e46ed9870e4de67e5fb083': 'tree TREEa\nparent PARa\nauthor AUTHORa\ncommitter COMMITTERb\n\nMSGa\n',
+            'f30d7a1c5e5a8a9b5179f36a4c58613fca4016f0': 'tree TREEb\nparent PARb\nauthor AUTHORb\ncommitter COMMITTERc\n\nMSGb\n',
+        }
+
+        for hash_val, data in self.hash_to_data.items():
+            commit.create(*data)
+
+            actual_output = StringIO()
+            with redirect_stdout(actual_output):
+                commit.print_commit_dict()
+            expected_output = hash_to_output[hash_val]
+            self.assertEqual(actual_output.getvalue(), expected_output)
+            actual_output.close()
+
+            actual_output = StringIO()
+            with redirect_stdout(actual_output):
+                commit.print_commit_file(hash_val)
+            self.assertEqual(actual_output.getvalue(), expected_output)
+            actual_output.close()
+
+        del test_dir

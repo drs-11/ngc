@@ -251,6 +251,7 @@ class Commit(NgcObject):
         if not path: path = os.getcwd()
         self.path = path
         self.objects_path = os.path.join(path, ".ngc/objects")
+        if not os.path.exists(self.objects_path): os.makedirs(self.objects_path)
         self.commit_dict = None
 
     def create(self, tree_hash, author_details, committer_details, message,
@@ -317,7 +318,7 @@ class Commit(NgcObject):
         if self.PARENT in commit_json: print(self.PARENT, commit_json[self.PARENT])
         print(self.AUTHOR, commit_json[self.AUTHOR])
         print(self.COMMITTER, commit_json[self.COMMITTER])
-        print('\n', commit_json[self.MSG])
+        print('\n' + commit_json[self.MSG])
 
     def print_commit_dict(self):
         """ Print commit details from the class object. """
@@ -330,7 +331,7 @@ class Commit(NgcObject):
         if self.PARENT in self.commit_dict: print(self.PARENT, self.commit_dict[self.PARENT])
         print(self.AUTHOR, self.commit_dict[self.AUTHOR])
         print(self.COMMITTER, self.commit_dict[self.COMMITTER])
-        print('\n', self.commit_dict[self.MSG])
+        print('\n' + self.commit_dict[self.MSG])
         
     def get_commit_dict_from_file(self, commit_hash):
         """ Get the commit details from a commit file. """

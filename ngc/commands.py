@@ -8,8 +8,7 @@ from . import objects
 
 log = logging.getLogger(__name__)
 
-
-class Ngc:
+class Command:
     """
     Main class dealing with ngc commands.
     """
@@ -48,6 +47,9 @@ class Ngc:
         if not os.path.exists(objects_path): os.makedirs(objects_path)
 
     def status(self):
+        """
+        Display the status of the repository in regards of file changes.
+        """
         modified_files = list()
         def print_mod(file_path, blob_path):
             file_name = file_path.split("/")[-1]

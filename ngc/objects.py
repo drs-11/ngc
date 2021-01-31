@@ -6,6 +6,7 @@ import os
 import shutil
 import time
 
+log = logging.getLogger(__name__)
 
 class NgcObject:
     """
@@ -24,14 +25,14 @@ class NgcObject:
 
         with open(obj_path, "rb") as f_in, gzip.open(dst, "wb") as f_out:
             shutil.copyfileobj(f_in, f_out, self.BUF_SIZE)
-        logging.debug("%s compressed." % obj_path)
+        log.debug("%s compressed." % obj_path)
 
     def extract_obj(self, obj_path, dst):
         """ Uncompress the given object using gzip. """
 
         with gzip.open(dst, "rb") as f_in, open(obj_path, "wb") as f_out:
             shutil.copyfileobj(f_in, f_out, self.BUF_SIZE)
-        logging.debug("%s uncompressed." % obj_path)
+        log.debug("%s uncompressed." % obj_path)
 
     def get_file_hash(self, file_path):
         """ Return a hash value of the contents of the given file. """
@@ -160,7 +161,7 @@ class Tree(NgcObject):
         self.path = path
         self.objects_path = os.path.join(self.path, '.ngc/objects')
         if not os.path.exists(self.objects_path): os.makedirs(self.objects_path)
-        self.root = None
+        self.current_tree_hash = None
         self.blob = Blob()
 
     def create(self, path=None):
@@ -168,14 +169,14 @@ class Tree(NgcObject):
         tree_obj = dict()
         files = dict()
         subdirs = dict()
-        logging.debug("generating tree object...")
+        log.debug("generating tree object...")
 
         # traverse repository and generate blob files
         for item in os.listdir(path):
-            logging.debug("traversing: %s" % (path))
-            # logging.debug("item - %s" % (item))
+            log.debug("traversing: %s" % (path))
+            # log.debug("item - %s" % (item))
             item_path = os.path.join(path, item)
-            logging.debug("item found: %s" % (item_path))
+            log.debug("item found: %s" % (item_path))
 
             if item.startswith("."):
                 continue
@@ -187,7 +188,7 @@ class Tree(NgcObject):
                 # if item not already creates as blob, create it
                 if not os.path.exists(os.path.join(self.objects_path, file_hash)):
                     file_hash = self.blob.create(item_path, self.objects_path)
-                    logging.debug("blob created for: %s" % (item))
+                    log.debug("blob created for: %s" % (item))
 
                 files[item] = file_hash
 
@@ -196,10 +197,10 @@ class Tree(NgcObject):
                 # if item is a directory, recursively create another tree object
                 subdir_hash = self.create(item_path)
                 subdirs[item] = subdir_hash
-                logging.info("tree created for: %s" % (item))
+                log.info("tree created for: %s" % (item))
 
             else:
-                logging.warning("Unknown file type found. Skipping.")
+                log.warning("Unknown file type found. Skipping.")
 
         # fill tree_obj with blob info
         tree_obj[self.FILES] = files
@@ -218,13 +219,15 @@ class Tree(NgcObject):
         with open(tree_obj_path, 'wb') as tree_file:
             tree_file.write(tree_json_bytes)
 
+        self.current_tree_hash = hashed_value # TODO: worst jugad ever, resolve testing for this
+
         return hashed_value
 
     def get_tree_dict(self, tree_hash):
         """ Get tree details from file as dict. """
         tree_file_path = os.path.join(self.objects_path, tree_hash)
         if not os.path.exists(tree_file_path):
-            logging.warning("Tree file doesn't exist.")
+            log.warning("Tree file doesn't exist.")
             return
         tree_dict = None
 
@@ -307,7 +310,7 @@ class Commit(NgcObject):
         """ Print commit details from a commit file. """
         commit_path = os.path.join(self.objects_path, commit_hash)
         if not os.path.exists(commit_path):
-            logging.warning("Commit file doesn't exist.")
+            log.warning("Commit file doesn't exist.")
             return 
         commit_json = None
 
@@ -323,7 +326,7 @@ class Commit(NgcObject):
     def print_commit_dict(self):
         """ Print commit details from the class object. """
         if not self.commit_dict:
-            logging.warning('No commit object created.\n Create commit object first '
+            log.warning('No commit object created.\n Create commit object first '
                             'to print commit details.')
             return
 

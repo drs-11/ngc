@@ -72,10 +72,30 @@ class Command:
         pass
 
     def commit(self, message):
+        """
+        Commit changes of a repository.
+        Note: Staging and unstaging not supported right now
+        """
+        # generate the tree for the repository and convert files
+        # to blobs
+        prev_tree_hash = self.obj_tree.current_tree_hash
         tree_hash = self.obj_tree.create()
+
+        # if there are no changes, return
+        if prev_tree_hash == self.obj_tree.current_tree_hash:
+            print("No changes detected, nothing to commit.")
+            return
+
+        # get previous commit's hash if it exists
         parent_hash = self._get_current_commit_hash()
+
+        # put the timestamp into commit
         self.user_details[self.TIMESTAMP] = time.time()
-        commit_hash = self.obj_commit.create(tree_hash=tree_hash, author_details=self.author_details, committer_details=self.user_details, message=message, parent_hash=parent_hash)
+
+        # generate the commit object
+        commit_hash = self.obj_commit.create(tree_hash, self.author_details,
+                                             self.user_details, message, parent_hash)
+
         self._update_commit_hash(commit_hash)
 
     def reset(self):
@@ -121,7 +141,7 @@ class Command:
             if ".ngc" in dirpath:
                 continue
             for file in filenames:
-                if file is ".authorinfo" : continue
+                if file == ".authorinfo" : continue
                 os.remove(os.path.join(dirpath, file))
 
         tree_hash = self.obj_commit.get_tree_hash(commit_hash)
@@ -170,12 +190,15 @@ class Command:
         return author_details
 
     def _get_current_commit_hash(self):
+        """
+        Retrieve current commit's hash from file HEAD if it exists.
+        """
         commit_hash = None
         try:
             with open(os.path.join(self.repo_path, ".ngc/HEAD"), "r") as head_file:
                 commit_hash = head_file.read()
         except FileNotFoundError:
-            pass
+            log.debug("No HEAD file found. Assuming there were no prior commits.")
         return commit_hash
 
     def _restore_files(self, tree_hash, dir_path):
@@ -193,11 +216,15 @@ class Command:
             self._restore_files(subdir_hash, subdir_path)
 
     def _update_commit_hash(self, new_commit_hash):
+        """
+        Update commit hash wherever relevant.
+        """
         self.head = new_commit_hash
-        log.info("Updated self.head to %s" % (self.head))
 
         with open(os.path.join(self.repo_path, ".ngc/HEAD"), "w") as head_file:
             head_file.write(new_commit_hash)
+
+        log.debug("Updated HEAD to %s" % (self.head))
 
     def _check_modified_files(self, tree=None, path=None, mod_list=None, mod_func=None, del_func=None):
         if path is None : path = self.repo_path

@@ -2,22 +2,35 @@
 
 A version control system created as a proof-of-concept project. 
 
+[![ngc-workflow Actions Status](https://github.com/drs-11/ngc/workflows/ngc-build/badge.svg)](https://github.com/drs-11/ngc/actions)
 ---
 
-Commands supported:
-- ngc init
-- ngc commtit
-- ngc status
-- ngc reset
-- ngc log
-- ngc checkout
+## Commands 
 
+Initialise a repository:
 
-ToDos:
-- correct and integrate diff tool
-- add merging feature
-- improve and add more unittests
+```$ ngc init```
 
-A design document was made for this project located at /docs.
+Commit a repo:
 
-Project mentored by: [Kaustabh Karkare](https://github.com/kaustubh-karkare)
+```$ ngc commit```
+
+Get status of modified files:
+
+```$ ngc status```
+
+Reset to the previous commit:
+
+```$ ngc reset```
+
+Get the logs of commits:
+
+```$ ngc log```
+
+Checkout a specific commit:
+
+```$ ngc checkout```
+
+---
+
+A design document was made for this project located in ./docs.

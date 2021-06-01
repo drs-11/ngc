@@ -1,23 +1,24 @@
 # ngc
 
 A version control system created as a proof-of-concept project. 
-Note: In the middle of refactoring the code so it's broken right now.
 
 [![ngc-workflow Actions Status](https://github.com/drs-11/ngc/workflows/ngc-build/badge.svg)](https://github.com/drs-11/ngc/actions)
 ---
 
-## Commands 
+## Commands
 
-Initialise a repository:
+Initialise a folder as an ngc repo:
 
 ```
+$ alias ngc="python3 /path/to/ngc/ngc.py"
 $ ngc init
 ```
 
-Commit a repo:
+Commit changes in a repo:
 
 ```
 $ ngc commit
+Enter commit message: first commit
 ```
 
 Get status of modified files:
@@ -26,7 +27,7 @@ Get status of modified files:
 $ ngc status
 ```
 
-Reset to the previous commit:
+Reset to the last commit:
 
 ```
 $ ngc reset
@@ -41,7 +42,7 @@ $ ngc log
 Checkout a specific commit:
 
 ```
-$ ngc checkout
+$ ngc checkout <hash value of commit>
 ```
 
 ---

@@ -50,6 +50,10 @@ class Command:
         """
         Display the status of the repository in regards of file changes.
         """
+        if not os.path.exists(self.obj_tree.objects_path):
+            print("Not a git repository! Please initialise the repository through 'ngc init' command!")
+            return
+
         modified_files = list()
         def print_mod(file_path, blob_path):
             file_name = file_path.split("/")[-1]
@@ -62,9 +66,11 @@ class Command:
             print(f"added:    {file_name}")
 
 
-        print(f"On branch {self.head}")
+        if self.head is not None:
+            print(f"Last commit: {self.head}")
         print("Changes not committed:")
-        self._check_modified_files(mod_list=modified_files, mod_func=print_mod, del_func=print_del)
+        if self.head is not None:
+            self._check_modified_files(mod_list=modified_files, mod_func=print_mod, del_func=print_del)
         self._check_added_files(mod_list=modified_files, add_func=print_add)
         print('Use "ngc commit" to add changes to a new commit')
 
@@ -99,6 +105,10 @@ class Command:
         self._update_commit_hash(commit_hash)
 
     def reset(self):
+        if self.head is None:
+            print("No commits detected. Can't reset.")
+            return
+
         modified_files = list()
         def restore_file(file_path, blob_path):
             self.obj_blob.extract_content(dst=file_path, file_path=blob_path)
@@ -109,6 +119,10 @@ class Command:
         self._check_added_files(mod_list=modified_files, add_func=delete_file)
 
     def log(self, commit_hash=None):
+        if self.head is None:
+            print("No commits added. No logs to show.")
+            return
+
         if commit_hash is None: commit_hash = self.head
         log.info("logging...")
 
@@ -136,6 +150,10 @@ class Command:
 
     def checkout(self, commit_hash=None):
         if commit_hash is None: commit_hash = self.head
+        if commit_hash is None:
+            print("No commits detected. Can't checkout.")
+            return
+            
 
         for dirpath, dirnames, filenames in os.walk(self.repo_path):
             if ".ngc" in dirpath:
@@ -227,6 +245,9 @@ class Command:
         log.debug("Updated HEAD to %s" % (self.head))
 
     def _check_modified_files(self, tree=None, path=None, mod_list=None, mod_func=None, del_func=None):
+        """
+        Helper function to check and list files that are modified/deleted.
+        """
         if path is None : path = self.repo_path
         if tree is None : tree = self.head
 
@@ -236,6 +257,8 @@ class Command:
             tree = commit_data[self.obj_commit.TREE]
         with open(os.path.join(self.repo_path, ".ngc/objects", tree), "rb") as tree_file:
             tree_json = json.load(tree_file)
+
+
         for file in tree_json[self.obj_tree.FILES]:
             file_path = os.path.join(path, file)
             blob_path = os.path.join(self.repo_path, ".ngc/objects", tree_json[self.obj_tree.FILES][file])

@@ -12,12 +12,13 @@ from ngc import commands
 
 class InitTest(unittest.TestCase):
 
-    def test_init_vanilla(self):
+    def test_init_without_config(self):
 
         with tempfile.TemporaryDirectory() as temp_dir:
             copy_tree('./test/test_dir/', temp_dir)
             cmd = commands.Command(temp_dir)
             output = StringIO()
+            print(cmd.user_details)
             with redirect_stdout(output):
                 cmd.init()
             expected_output = "Please configure user settings through config command first!\n"
@@ -32,11 +33,12 @@ class InitTest(unittest.TestCase):
                 'user_email': '<somegenericemail>',
                 'timestamp': 0,
             }
-            info_file_path = os.path.join(str(Path.home()), ".userinfo")
+            info_file_path = os.path.join(str(Path.home()), ".userinfo")    # TODO: need to make this isolated
             with open(info_file_path, 'w') as user_file:
                 json.dump(test_user_deets, user_file)
-            copy_tree('./test/test_dir/', temp_dir)
+            # copy_tree('./test/test_dir/', temp_dir)
             cmd = commands.Command(temp_dir)
+            cmd.init()
             
             ngc_path = os.path.join(cmd.repo_path, ".ngc")
             objects_path = os.path.join(cmd.repo_path, ".ngc/objects")

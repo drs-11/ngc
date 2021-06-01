@@ -1,6 +1,7 @@
-import ngc
 import argparse
 from os import getcwd
+
+from ngc.commands import Command
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -8,7 +9,7 @@ if __name__ == '__main__':
     parser.add_argument('--location', type=str, default=getcwd())
     args = parser.parse_args()
 
-    ngc_obj = ngc.Ngc(repo_path=args.location)
+    ngc_obj = Command(repo_path=args.location)
 
     if args.command[0] == 'init':
         ngc_obj.init()

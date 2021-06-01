@@ -98,6 +98,7 @@ class TreeTest(unittest.TestCase):
         }
         self.test_dir = tempfile.TemporaryDirectory()
         copy_tree('./test/test_dir/', self.test_dir.name)
+        os.makedirs(self.test_dir.name + '/.ngc/objects')
         self.tree = objects.Tree(self.test_dir.name)
         self.tree.create()
 
@@ -129,6 +130,7 @@ class CommitTest(unittest.TestCase):
 
     def test_create(self):
         test_dir = tempfile.TemporaryDirectory()
+        os.makedirs(test_dir.name + '/.ngc/objects')
         commit = objects.Commit(test_dir.name)
 
         for expected_hash, data in self.hash_to_data.items():
@@ -139,6 +141,7 @@ class CommitTest(unittest.TestCase):
 
     def test_print(self):
         test_dir = tempfile.TemporaryDirectory()
+        os.makedirs(test_dir.name + '/.ngc/objects')
         commit = objects.Commit(test_dir.name)
 
         hash_to_output = {

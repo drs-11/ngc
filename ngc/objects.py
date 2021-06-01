@@ -107,7 +107,7 @@ class Blob(NgcObject):
                 header += temp
             content = f_in.read()
 
-        return content.decode()
+        return content
 
     def extract_content(self, file_path, dst):
         """ Extract contents of a blob file to destination file. """
@@ -160,7 +160,7 @@ class Tree(NgcObject):
         if not path: path = os.getcwd()
         self.path = path
         self.objects_path = os.path.join(self.path, '.ngc/objects')
-        if not os.path.exists(self.objects_path): os.makedirs(self.objects_path)
+        # if not os.path.exists(self.objects_path): os.makedirs(self.objects_path)
         self.current_tree_hash = None
         self.blob = Blob()
 
@@ -254,7 +254,7 @@ class Commit(NgcObject):
         if not path: path = os.getcwd()
         self.path = path
         self.objects_path = os.path.join(path, ".ngc/objects")
-        if not os.path.exists(self.objects_path): os.makedirs(self.objects_path)
+        # if not os.path.exists(self.objects_path): os.makedirs(self.objects_path)
         self.commit_dict = None
 
     def create(self, tree_hash, author_details, committer_details, message,
@@ -317,11 +317,12 @@ class Commit(NgcObject):
         with open(commit_path, 'rb') as commit_file:
             commit_json = json.load(commit_file)
 
-        print(self.TREE, commit_json[self.TREE])
+        print("Commit:", commit_hash)
+        # print(self.TREE, commit_json[self.TREE])
         if self.PARENT in commit_json: print(self.PARENT, commit_json[self.PARENT])
         print(self.AUTHOR, commit_json[self.AUTHOR])
         print(self.COMMITTER, commit_json[self.COMMITTER])
-        print('\n' + commit_json[self.MSG])
+        print('\n' + commit_json[self.MSG] + '\n')
 
     def print_commit_dict(self):
         """ Print commit details from the class object. """

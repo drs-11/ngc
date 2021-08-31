@@ -15,7 +15,6 @@ class Command:
 
     USER_NAME = 'user_name'
     USER_EMAIL = 'user_email'
-    TIMESTAMP = 'timestamp'
 
     def __init__(self, repo_path=None):
         if not repo_path: repo_path=os.getcwd()
@@ -38,7 +37,6 @@ class Command:
             return
 
         self.author_details = self.user_details
-        self.author_details[self.TIMESTAMP] = time.time()
         self._set_author_details()
         ngc_path = os.path.join(self.repo_path, ".ngc")
         objects_path = os.path.join(ngc_path, "objects")
@@ -94,9 +92,6 @@ class Command:
 
         # get previous commit's hash if it exists
         parent_hash = self._get_current_commit_hash()
-
-        # put the timestamp into commit
-        self.user_details[self.TIMESTAMP] = time.time()
 
         # generate the commit object
         commit_hash = self.obj_commit.create(tree_hash, self.author_details,
@@ -178,8 +173,7 @@ class Command:
         # config file is stored in user's home directory
         info_file_path = os.path.join(str(Path.home()), ".userinfo")
         user_details = {self.USER_NAME : None,
-                        self.USER_EMAIL : None,
-                        self.TIMESTAMP : None}  # TODO: is timestamp as a key required here?
+                        self.USER_EMAIL : None}
 
         if os.path.exists(info_file_path):
             with open(info_file_path, "r") as user_info_file:
@@ -197,8 +191,7 @@ class Command:
         Get author info from current repo if it exists otherwise initialize empty info.
         """
         author_details = {self.USER_NAME : None,
-                          self.USER_EMAIL : None,
-                          self.TIMESTAMP : None}
+                          self.USER_EMAIL : None}
 
         author_file_path = os.path.join(self.repo_path, '.authorinfo')
         if os.path.exists(author_file_path):

@@ -23,7 +23,7 @@ class NgcObject:
     def compress_obj(self, obj_path, dst):
         """ Compress the given object using gzip. """
 
-        with open(obj_path, "rb") as f_in, gzip.open(dst, "wb") as f_out:
+        with open(obj_path, "rb") as f_in, gzip.GzipFile(filename=dst, mode="wb", mtime=0) as f_out:
             shutil.copyfileobj(f_in, f_out, self.BUF_SIZE)
         log.debug("%s compressed." % obj_path)
 
@@ -72,7 +72,7 @@ class Blob(NgcObject):
 
         # write compressed data to the blob file with the specified format
         with open(file_path, 'rb') as f_in:
-            with gzip.open(blob_path, "wb") as f_out: # TODO: reverse file handler's name
+            with gzip.GzipFile(filename=blob_path, mode="wb", mtime=0) as f_out: # TODO: reverse file handler's name
                 f_out.write(header)
                 shutil.copyfileobj(f_in, f_out, self.BUF_SIZE)
 
@@ -216,6 +216,7 @@ class Tree(NgcObject):
         hashed_value = hashf.hexdigest()
         tree_obj_path = os.path.join(self.objects_path, hashed_value)
 
+        # TODO: why am I not using json.dump instead of this?
         with open(tree_obj_path, 'wb') as tree_file:
             tree_file.write(tree_json_bytes)
 

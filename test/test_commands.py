@@ -61,9 +61,9 @@ class CommitTest(unittest.TestCase):
             cmd.init()
             cmd.commit("first commit")
 
-            tree_file_path = os.path.join(cmd.obj_tree.objects_path, "d25c3e80086290de5fb0c5ebc6c81ef0685870c3")
+            tree_file_path = os.path.join(cmd.obj_tree.objects_path, "0fbd657ff0d946213275023ae722c244c3026682")
             self.assertTrue(os.path.exists(tree_file_path))
-            self.assertEqual(cmd.obj_tree.current_tree_hash, "d25c3e80086290de5fb0c5ebc6c81ef0685870c3")
+            self.assertEqual(cmd.obj_tree.current_tree_hash, "0fbd657ff0d946213275023ae722c244c3026682")
 
     def test_commit_with_file_modification(self):
         
@@ -80,9 +80,9 @@ class CommitTest(unittest.TestCase):
 
             cmd.commit("second commit with modification")
 
-            tree_file_path = os.path.join(cmd.obj_tree.objects_path, "bbdd1174f7112e12879d4444ef8b652e871b6afa")
+            tree_file_path = os.path.join(cmd.obj_tree.objects_path, "7b58e3728ac207ec2ff18f8e374688b893eaed4f")
             self.assertTrue(os.path.exists(tree_file_path))
-            self.assertEqual(cmd.obj_tree.current_tree_hash, "bbdd1174f7112e12879d4444ef8b652e871b6afa")
+            self.assertEqual(cmd.obj_tree.current_tree_hash, "7b58e3728ac207ec2ff18f8e374688b893eaed4f")
 
     def test_commit_with_file_deletion(self):
 
@@ -98,9 +98,9 @@ class CommitTest(unittest.TestCase):
 
             cmd.commit("second commit with file deletion")
 
-            tree_file_path = os.path.join(cmd.obj_tree.objects_path, "2e5ba07c0cc1f1052fd91741f9bdde8ef68b654c")
+            tree_file_path = os.path.join(cmd.obj_tree.objects_path, "1ee7866845063cea765805d6bee24b964cc3505d")
             self.assertTrue(os.path.exists(tree_file_path))
-            self.assertEqual(cmd.obj_tree.current_tree_hash, "2e5ba07c0cc1f1052fd91741f9bdde8ef68b654c")
+            self.assertEqual(cmd.obj_tree.current_tree_hash, "1ee7866845063cea765805d6bee24b964cc3505d")
 
     def test_commit_without_changes(self):
 

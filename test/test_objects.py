@@ -41,7 +41,7 @@ class BlobTest(unittest.TestCase):
                 src_file.write(compressed)
                 src_file.seek(0)
                 content = self.blob.get_content(src_file.name)
-                self.assertEqual(data, content)
+                self.assertEqual(data, content.decode())
 
     def test_extract_content(self):
 
@@ -82,14 +82,14 @@ class BlobTest(unittest.TestCase):
 class TreeTest(unittest.TestCase):
 
     def setUp(self):
-        self.subdir_to_hash = {'.':'d25c3e80086290de5fb0c5ebc6c81ef0685870c3',
+        self.subdir_to_hash = {'.':'0fbd657ff0d946213275023ae722c244c3026682',
                        'subdir1':'d2b945ace691fe8522e868ebde016d0a53ac40ca',
                        'subdir2':'35d9d594f1d830505fb3132d8959e73119755114',
                        'subdir2/subdir3':'17aeddcc4d19a24eedc6024163cdb9b0fceb5faa'
                     }
         self.hash_to_data = {
-            'd25c3e80086290de5fb0c5ebc6c81ef0685870c3': b'{"files": {"file1": "b75caba50711332063088fc53744f1c55b4445fe"}, '
-            b'"subdirs": {"subdir1": "d2b945ace691fe8522e868ebde016d0a53ac40ca", "subdir2": "35d9d594f1d830505fb3132d8959e73119755114"}}',
+            '0fbd657ff0d946213275023ae722c244c3026682': b'{"files": {"file1": "b75caba50711332063088fc53744f1c55b4445fe"}, '
+            b'"subdirs": {"subdir2": "35d9d594f1d830505fb3132d8959e73119755114", "subdir1": "d2b945ace691fe8522e868ebde016d0a53ac40ca"}}',
             'd2b945ace691fe8522e868ebde016d0a53ac40ca': b'{"files": {"file2": "bfc385898eb83d5f15e84635a1ab1649cced4fcb"}, "subdirs": {}}',
             '35d9d594f1d830505fb3132d8959e73119755114': b'{"files": {"file3": "41cd77870f7d97e5b5a32b87a12343312ffbc065"}, "subdirs": '
             b'{"subdir3": "17aeddcc4d19a24eedc6024163cdb9b0fceb5faa"}}',
@@ -157,12 +157,6 @@ class CommitTest(unittest.TestCase):
             with redirect_stdout(actual_output):
                 commit.print_commit_dict()
             expected_output = hash_to_output[hash_val]
-            self.assertEqual(actual_output.getvalue(), expected_output)
-            actual_output.close()
-
-            actual_output = StringIO()
-            with redirect_stdout(actual_output):
-                commit.print_commit_file(hash_val)
             self.assertEqual(actual_output.getvalue(), expected_output)
             actual_output.close()
 
